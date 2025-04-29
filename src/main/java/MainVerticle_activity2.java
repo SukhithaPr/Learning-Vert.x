@@ -1,20 +1,30 @@
+
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
+import io.vertx.ext.web.Router;
 
-public class MainVerticle extends AbstractVerticle {
+import java.util.Map;
+
+public class MainVerticle_activity2 extends AbstractVerticle {
     @Override
     public void start(Promise<Void> startPromise) {
+        Router router = Router.router(vertx);
+        router.get("/api/hello").handler(ctx -> ctx.json(Map.of("message", "Hello!")));
+        router.get("/api/users/:id").handler(ctx -> {
+            String id = ctx.pathParam("id");
+            ctx.json(Map.of("user_id", id));
+        });
+
         vertx.createHttpServer()
-                .requestHandler(request -> request.response().end("Hello Sukhitha!"))
+                .requestHandler(router)
                 .listen(8080)
-                .onSuccess(server -> {
-                    System.out.println("HTTP server started on port 8080");
-                    startPromise.complete();
-                })
+                .onSuccess(server -> startPromise.complete())
                 .onFailure(startPromise::fail);
     }
     public static void main(String[] args) {
-        Vertx.vertx().deployVerticle(new MainVerticle());
+        Vertx vertx = Vertx.vertx();
+        vertx.deployVerticle(new MainVerticle_activity2());
     }
+
 }
